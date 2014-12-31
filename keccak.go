@@ -5,35 +5,35 @@ func roundGeneric(a [5][5]uint64) [5][5]uint64 {
 	// Theta
 	var c [5]uint64
 	for x := range a {
-		c[x] = a[x][0] ^ a[x][1] ^ a[x][2] ^ a[x][3] ^ a[x][4]
+		c[x] = a[0][x] ^ a[1][x] ^ a[2][x] ^ a[3][x] ^ a[4][x]
 	}
-	for x := range a {
+	for x := range a[0] {
 		x0, x1 := (x+4)%5, (x+1)%5
-		a[x][0] ^= c[x0] ^ rotl(c[x1], 1)
-		a[x][1] ^= c[x0] ^ rotl(c[x1], 1)
-		a[x][2] ^= c[x0] ^ rotl(c[x1], 1)
-		a[x][3] ^= c[x0] ^ rotl(c[x1], 1)
-		a[x][4] ^= c[x0] ^ rotl(c[x1], 1)
+		a[0][x] ^= c[x0] ^ rotl(c[x1], 1)
+		a[1][x] ^= c[x0] ^ rotl(c[x1], 1)
+		a[2][x] ^= c[x0] ^ rotl(c[x1], 1)
+		a[3][x] ^= c[x0] ^ rotl(c[x1], 1)
+		a[4][x] ^= c[x0] ^ rotl(c[x1], 1)
 	}
 
 	// Rho and pi
 	var b [5][5]uint64
-	for x := range a {
-		for y := range a[0] {
+	for y := range a {
+		for x := range a[0] {
 			x0 := y
 			y0 := (x*2 + y*3) % 5
-			b[x0][y0] = rotl(a[x][y], rotc[x][y])
+			b[y0][x0] = rotl(a[y][x], rotc[y][x])
 		}
 	}
 
 	// Chi
 	for y := range a[0] {
-		c := [5]uint64{b[0][y], b[1][y], b[2][y], b[3][y], b[4][y]}
-		a[0][y] = b[0][y] ^ ^c[1] & c[2]
-		a[1][y] = b[1][y] ^ ^c[2] & c[3]
-		a[2][y] = b[2][y] ^ ^c[3] & c[4]
-		a[3][y] = b[3][y] ^ ^c[4] & c[0]
-		a[4][y] = b[4][y] ^ ^c[0] & c[1]
+		c := [5]uint64{b[y][0], b[y][1], b[y][2], b[y][3], b[y][4]}
+		a[y][0] = b[y][0] ^ ^c[1] & c[2]
+		a[y][1] = b[y][1] ^ ^c[2] & c[3]
+		a[y][2] = b[y][2] ^ ^c[3] & c[4]
+		a[y][3] = b[y][3] ^ ^c[4] & c[0]
+		a[y][4] = b[y][4] ^ ^c[0] & c[1]
 	}
 
 	return a

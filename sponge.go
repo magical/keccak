@@ -8,7 +8,7 @@ const BlockSize = 1600/8 - Size*2
 
 // digest implements hash.Hash
 type digest struct {
-	a [5][5]uint64
+	a [5][5]uint64 // a[y][x][z]
 	buf [BlockSize]byte
 	len int
 }
@@ -40,12 +40,12 @@ func (d *digest) Write(b []byte) (int, error) {
 func (d *digest) flush() {
 	b := d.buf[:]
 loop:
-	for y := range d.a[0] {
-		for  x := range d.a {
+	for y := range d.a {
+		for  x := range d.a[0] {
 			if len(b) == 0 {
 				break loop
 			}
-			d.a[x][y] ^= le64dec(b)
+			d.a[y][x] ^= le64dec(b)
 			b = b[8:]
 		}
 	}
@@ -71,9 +71,9 @@ func (d0 *digest) Sum(b []byte) []byte {
 	d.flush()
 
 	b = le64enc(b, d.a[0][0])
-	b = le64enc(b, d.a[1][0])
-	b = le64enc(b, d.a[2][0])
-	b = le64enc(b, d.a[3][0])
+	b = le64enc(b, d.a[0][1])
+	b = le64enc(b, d.a[0][2])
+	b = le64enc(b, d.a[0][3])
 	return b
 }
 
