@@ -45,15 +45,15 @@ loop:
 			if len(b) == 0 {
 				break loop
 			}
-			d.a[x][y] ^= uint64(b[0]) + uint64(b[1])<<8 + uint64(b[2])<<16 + uint64(b[3])<<24 + uint64(b[4])<<32 + uint64(b[5])<<40 + uint64(b[6])<<48 + uint64(b[7])<<56
+			d.a[x][y] ^= le64dec(b)
 			b = b[8:]
 		}
 	}
-	d.a = keccak(d.a)
+	d.a = keccakf(d.a)
 	d.len = 0
 }
 
-func keccak(a [5][5]uint64) [5][5]uint64 {
+func keccakf(a [5][5]uint64) [5][5]uint64 {
 	for i := 0; i < 24; i++ {
 		a = roundGeneric(a)
 		a[0][0] ^= RC[i]
@@ -75,6 +75,10 @@ func (d0 *digest) Sum(b []byte) []byte {
 	b = le64enc(b, d.a[2][0])
 	b = le64enc(b, d.a[3][0])
 	return b
+}
+
+func le64dec(b []byte) uint64 {
+	return uint64(b[0]) << 0 | uint64(b[1])<<8 | uint64(b[2])<<16 | uint64(b[3])<<24 | uint64(b[4])<<32 | uint64(b[5])<<40 | uint64(b[6])<<48 | uint64(b[7])<<56
 }
 
 func le64enc(b []byte, x uint64) []byte {
