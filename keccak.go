@@ -1,10 +1,10 @@
 package keccak
 
 // roundGeneric implements one round of the keccak-f[1600] permutation.
-func roundGeneric(a [5][5]uint64) [5][5]uint64 {
+func roundGeneric(a *[5][5]uint64) {
 	// Theta
 	var c [5]uint64
-	for x := range a {
+	for x := range *a {
 		c[x] = a[0][x] ^ a[1][x] ^ a[2][x] ^ a[3][x] ^ a[4][x]
 	}
 	for x := range a[0] {
@@ -18,7 +18,7 @@ func roundGeneric(a [5][5]uint64) [5][5]uint64 {
 
 	// Rho and pi
 	var b [5][5]uint64
-	for y := range a {
+	for y := range *a {
 		for x := range a[0] {
 			x0 := y
 			y0 := (x*2 + y*3) % 5
@@ -35,8 +35,6 @@ func roundGeneric(a [5][5]uint64) [5][5]uint64 {
 		a[y][3] = b[y][3] ^ ^c[4] & c[0]
 		a[y][4] = b[y][4] ^ ^c[0] & c[1]
 	}
-
-	return a
 }
 
 

@@ -49,16 +49,15 @@ loop:
 			b = b[8:]
 		}
 	}
-	d.a = keccakf(d.a)
+	keccakf(&d.a)
 	d.len = 0
 }
 
-func keccakf(a [5][5]uint64) [5][5]uint64 {
+func keccakf(a *[5][5]uint64) {
 	for i := 0; i < 24; i++ {
-		a = roundGeneric(a)
+		roundGeneric(a)
 		a[0][0] ^= RC[i]
 	}
-	return a
 }
 
 func (d0 *digest) Sum(b []byte) []byte {
