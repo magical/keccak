@@ -23,7 +23,7 @@ func Benchmark256(b *testing.B) {
 	var tmp [Size]byte
 	h := New()
 	b.SetBytes(BlockSize)
-	for i := 0; i < b.N; i ++ {
+	for i := 0; i < b.N; i++ {
 		h.Sum(tmp[:])
 	}
 }

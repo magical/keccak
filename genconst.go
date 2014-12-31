@@ -20,7 +20,7 @@ func main() {
 	var rot [5][5]uint
 	x, y := 1, 0
 	for i := 0; i < 24; i++ {
-		rot[y][x] = uint((i+1)*(i+2)/2)%64
+		rot[y][x] = uint((i+1)*(i+2)/2) % 64
 		x, y = y, (2*x+3*y)%5
 	}
 	fmt.Printf("var rotc = %#v\n", rot)

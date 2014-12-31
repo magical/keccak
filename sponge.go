@@ -2,13 +2,13 @@ package keccak
 
 import "hash"
 
-const Size = 256/8
+const Size = 256 / 8
 
 const BlockSize = 1600/8 - Size*2
 
 // digest implements hash.Hash
 type digest struct {
-	a [5][5]uint64 // a[y][x][z]
+	a   [5][5]uint64 // a[y][x][z]
 	buf [BlockSize]byte
 	len int
 }
@@ -17,7 +17,7 @@ func New() hash.Hash {
 	return &digest{}
 }
 
-func (d *digest) Size() int { return Size }
+func (d *digest) Size() int      { return Size }
 func (d *digest) BlockSize() int { return BlockSize }
 
 func (d *digest) Reset() {
@@ -41,7 +41,7 @@ func (d *digest) flush() {
 	b := d.buf[:]
 loop:
 	for y := range d.a {
-		for  x := range d.a[0] {
+		for x := range d.a[0] {
 			if len(b) == 0 {
 				break loop
 			}
@@ -63,7 +63,7 @@ func keccakf(a *[5][5]uint64) {
 func (d0 *digest) Sum(b []byte) []byte {
 	d := *d0
 	d.buf[d.len] = 0x01
-	for i := d.len+1; i < BlockSize; i++ {
+	for i := d.len + 1; i < BlockSize; i++ {
 		d.buf[i] = 0
 	}
 	d.buf[BlockSize-1] |= 0x80
@@ -77,7 +77,7 @@ func (d0 *digest) Sum(b []byte) []byte {
 }
 
 func le64dec(b []byte) uint64 {
-	return uint64(b[0]) << 0 | uint64(b[1])<<8 | uint64(b[2])<<16 | uint64(b[3])<<24 | uint64(b[4])<<32 | uint64(b[5])<<40 | uint64(b[6])<<48 | uint64(b[7])<<56
+	return uint64(b[0])<<0 | uint64(b[1])<<8 | uint64(b[2])<<16 | uint64(b[3])<<24 | uint64(b[4])<<32 | uint64(b[5])<<40 | uint64(b[6])<<48 | uint64(b[7])<<56
 }
 
 func le64enc(b []byte, x uint64) []byte {
