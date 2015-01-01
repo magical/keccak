@@ -6,6 +6,8 @@ const Size = 256 / 8
 
 const BlockSize = 1600/8 - Size*2
 
+var round = roundGen
+
 // digest implements hash.Hash
 type digest struct {
 	a   [5][5]uint64 // a[y][x][z]
@@ -55,7 +57,7 @@ loop:
 
 func keccakf(a *[5][5]uint64) {
 	for i := 0; i < 24; i++ {
-		roundGeneric(a)
+		round(a)
 		a[0][0] ^= RC[i]
 	}
 }

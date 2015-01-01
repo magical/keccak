@@ -28,15 +28,14 @@ func roundGeneric(a *[5][5]uint64) {
 
 	// Chi
 	for y := range a[0] {
-		c := [5]uint64{b[y][0], b[y][1], b[y][2], b[y][3], b[y][4]}
-		a[y][0] = b[y][0] ^ ^c[1]&c[2]
-		a[y][1] = b[y][1] ^ ^c[2]&c[3]
-		a[y][2] = b[y][2] ^ ^c[3]&c[4]
-		a[y][3] = b[y][3] ^ ^c[4]&c[0]
-		a[y][4] = b[y][4] ^ ^c[0]&c[1]
+		a[y][0] = b[y][0] ^ ^b[y][1]&b[y][2]
+		a[y][1] = b[y][1] ^ ^b[y][2]&b[y][3]
+		a[y][2] = b[y][2] ^ ^b[y][3]&b[y][4]
+		a[y][3] = b[y][3] ^ ^b[y][4]&b[y][0]
+		a[y][4] = b[y][4] ^ ^b[y][0]&b[y][1]
 	}
 }
 
 func rotl(a uint64, r uint) uint64 {
-	return a<<r | a>>(64-r)
+	return a<<(r%64) | a>>(64-(r%64))
 }
