@@ -11,28 +11,36 @@ var round = roundGo
 // digest implements hash.Hash
 type digest struct {
 	a   [5][5]uint64 // a[y][x][z]
-	buf [BlockSize]byte
+	buf [200]byte
+	dsbyte byte
 	len int
+	size int
 }
 
-func New() hash.Hash {
-	return &digest{}
-}
+func New256() hash.Hash { return &digest{size: 256/8, dsbyte: 0x06} }
+func New512() hash.Hash { return &digest{size: 512/8, dsbyte: 0x06} }
 
-func (d *digest) Size() int      { return Size }
-func (d *digest) BlockSize() int { return BlockSize }
+func newKeccak256() hash.Hash { return &digest{size: 256/8, dsbyte: 0x01} }
+func newKeccak512() hash.Hash { return &digest{size: 512/8, dsbyte: 0x01} }
+
+func (d *digest) Size() int      { return d.size }
+func (d *digest) BlockSize() int { return 200 - d.size*2 }
 
 func (d *digest) Reset() {
-	*d = digest{}
+	//fmt.Println("resetting")
+	d.a = [5][5]uint64{}
+	d.buf = [200]byte{}
+	d.len = 0
 }
 
 func (d *digest) Write(b []byte) (int, error) {
 	written := len(b)
+	bs := d.BlockSize()
 	for len(b) > 0 {
-		n := copy(d.buf[d.len:], b)
+		n := copy(d.buf[d.len:bs], b)
 		d.len += n
 		b = b[n:]
-		if d.len == BlockSize {
+		if d.len == bs  {
 			d.flush()
 		}
 	}
@@ -40,7 +48,8 @@ func (d *digest) Write(b []byte) (int, error) {
 }
 
 func (d *digest) flush() {
-	b := d.buf[:]
+	//fmt.Printf("Flushing with %d bytes\n", d.len)
+	b := d.buf[:d.len]
 loop:
 	for y := range d.a {
 		for x := range d.a[0] {
@@ -58,23 +67,24 @@ loop:
 func keccakf(a *[5][5]uint64) {
 	for i := 0; i < 24; i++ {
 		round(a)
-		a[0][0] ^= RC[i]
+		a[0][0] ^= roundc[i]
 	}
 }
 
 func (d0 *digest) Sum(b []byte) []byte {
 	d := *d0
-	d.buf[d.len] = 0x01
-	for i := d.len + 1; i < BlockSize; i++ {
+	d.buf[d.len] = d.dsbyte
+	bs := d.BlockSize()
+	for i := d.len + 1; i < bs; i++ {
 		d.buf[i] = 0
 	}
-	d.buf[BlockSize-1] |= 0x80
+	d.buf[bs-1] |= 0x80
+	d.len = bs
 	d.flush()
 
-	b = le64enc(b, d.a[0][0])
-	b = le64enc(b, d.a[0][1])
-	b = le64enc(b, d.a[0][2])
-	b = le64enc(b, d.a[0][3])
+	for i := 0; i < d.size/8; i++ {
+		b = le64enc(b, d.a[i/5][i%5])
+	}
 	return b
 }
 
