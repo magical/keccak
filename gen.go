@@ -89,28 +89,35 @@ func roundGo(a *[5][5]uint64) {
 			{{ end }}
 		{{ end }}
 	{{ end }}
+	var d uint64
 	{{ range $x := count 5 }}
 		{{ $x0 := add $x 4 5 }}
 		{{ $x1 := add $x 1 5 }}
+		d = c{{$x0}} ^ (c{{$x1}}<<1 | c{{$x1}}>>63)
 		{{ range $y := count 5 }}
-			a{{$x}}{{$y}} = a[{{$y}}][{{$x}}] ^ c{{$x0}} ^ (c{{$x1}}<<1 | c{{$x1}}>>63)
+			a{{$x}}{{$y}} = a[{{$y}}][{{$x}}] ^ d
 		{{ end }}
 	{{ end }}
 
-	// Rho and pi
+	// Rho
 	{{ range $y := count 5 }}
 		{{ range $x := count 5 }}
-			{{ $x0 := $y }}
-			{{ $y0 := add (mul $x 2) (mul $y 3) 5 }}
+			{{ $a := printf "a%d%d" $x $y }}
 			{{ $r := index $.Rotc $x $y }}
-			var b{{$x0}}{{$y0}} = a{{$x}}{{$y}}<<{{$r}} | a{{$x}}{{$y}}>>{{sub 64 $r}}
+			{{$a}} = {{$a}}<<{{$r}} | {{$a}}>>{{sub 64 $r}}
 		{{ end }}
 	{{ end }}
 
-	// Chi / output
+	// Pi / Chi / output
 	{{ range $y := count 5 }}
 		{{ range $x := count 5 }}
-			a[{{$y}}][{{$x}}] = b{{$x}}{{$y}} ^ (b{{add $x 2 5}}{{$y}} &^ b{{add $x 1 5}}{{$y}})
+			{{ $x0 := add $x (mul $y 3) 5 }}
+			{{ $y0 := $x }}
+			{{ $x1 := add (add $x 1 5) (mul $y 3) 5 }}
+			{{ $y1 := add $x 1 5 }}
+			{{ $x2 := add (add $x 2 5) (mul $y 3) 5 }}
+			{{ $y2 := add $x 2 5 }}
+			a[{{$y}}][{{$x}}] = a{{$x0}}{{$y0}} ^ (a{{$x2}}{{$y2}} &^ a{{$x1}}{{$y1}})
 		{{ end }}
 	{{ end }}
 }
