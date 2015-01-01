@@ -72,27 +72,29 @@ var tmpl = template.Must(template.New("keccak").Funcs(funcs).Parse(`
 
 package keccak
 
-// roundGeneric implements one round of the keccak-f[1600] permutation.
-func roundGeneric(a *[5][5]uint64) {
+// round implements one round of the keccak-f[1600] permutation.
+func roundGo(a *[5][5]uint64) {
 	{{ range $x := count 5 }}
-		{{ range $y := count 5 }}
-			var a{{$x}}{{$y}} = a[{{$y}}][{{$x}}]
-		{{ end }}
+		var a{{$x}}0, a{{$x}}1, a{{$x}}2, a{{$x}}3, a{{$x}}4 uint64
 	{{ end }}
 
 	// Theta
 	var c0, c1, c2, c3, c4 uint64
-	{{ range $x := count 5 }}
-		c{{$x}} = a{{$x}}0 ^ a{{$x}}1 ^ a{{$x}}2 ^ a{{$x}}3 ^ a{{$x}}4
+	{{ range $y := count 5 }}
+		{{ range $x := count 5 }}
+			{{ if eq $y 0 }}
+				c{{$x}} = a[{{$y}}][{{$x}}]
+			{{ else }}
+				c{{$x}} ^= a[{{$y}}][{{$x}}]
+			{{ end }}
+		{{ end }}
 	{{ end }}
 	{{ range $x := count 5 }}
 		{{ $x0 := add $x 4 5 }}
 		{{ $x1 := add $x 1 5 }}
-		a{{$x}}0 ^= c{{$x0}} ^ (c{{$x1}}<<1 | c{{$x1}}>>63)
-		a{{$x}}1 ^= c{{$x0}} ^ (c{{$x1}}<<1 | c{{$x1}}>>63)
-		a{{$x}}2 ^= c{{$x0}} ^ (c{{$x1}}<<1 | c{{$x1}}>>63)
-		a{{$x}}3 ^= c{{$x0}} ^ (c{{$x1}}<<1 | c{{$x1}}>>63)
-		a{{$x}}4 ^= c{{$x0}} ^ (c{{$x1}}<<1 | c{{$x1}}>>63)
+		{{ range $y := count 5 }}
+			a{{$x}}{{$y}} = a[{{$y}}][{{$x}}] ^ c{{$x0}} ^ (c{{$x1}}<<1 | c{{$x1}}>>63)
+		{{ end }}
 	{{ end }}
 
 	// Rho and pi
@@ -105,17 +107,10 @@ func roundGeneric(a *[5][5]uint64) {
 		{{ end }}
 	{{ end }}
 
-	// Chi
+	// Chi / output
 	{{ range $y := count 5 }}
 		{{ range $x := count 5 }}
-			a{{$x}}{{$y}} = b{{$x}}{{$y}} ^ (b{{add $x 2 5}}{{$y}} &^ b{{add $x 1 5}}{{$y}})
-		{{ end }}
-	{{ end }}
-
-	// Output
-	{{ range $y := count 5 }}
-		{{ range $x := count 5 }}
-			a[{{$y}}][{{$x}}] = a{{$x}}{{$y}}
+			a[{{$y}}][{{$x}}] = b{{$x}}{{$y}} ^ (b{{add $x 2 5}}{{$y}} &^ b{{add $x 1 5}}{{$y}})
 		{{ end }}
 	{{ end }}
 }
