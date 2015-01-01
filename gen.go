@@ -48,7 +48,7 @@ func mul(a, b int) int { return a * b }
 func mod(a, b int) int { return a % b }
 
 func afunc(x, y int) string {
-	return fmt.Sprintf("a[%d]", y%5*5 + x%5)
+	return fmt.Sprintf("a[%d]", y%5*5+x%5)
 }
 
 func bfunc(x, y int) string {

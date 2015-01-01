@@ -52,11 +52,11 @@ func (d *digest) flush() {
 	b := d.buf[:d.len]
 loop:
 	for i := range d.a {
-			if len(b) == 0 {
-				break loop
-			}
-			d.a[i] ^= le64dec(b)
-			b = b[8:]
+		if len(b) == 0 {
+			break loop
+		}
+		d.a[i] ^= le64dec(b)
+		b = b[8:]
 	}
 	keccakf(&d.a)
 	d.len = 0

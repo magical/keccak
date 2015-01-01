@@ -1,4 +1,3 @@
-
 package keccak
 
 // roundGeneric implements one round of the keccak-f[1600] permutation.
