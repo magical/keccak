@@ -10,18 +10,18 @@ var round = roundGo
 
 // digest implements hash.Hash
 type digest struct {
-	a   [5][5]uint64 // a[y][x][z]
-	buf [200]byte
+	a      [5][5]uint64 // a[y][x][z]
+	buf    [200]byte
 	dsbyte byte
-	len int
-	size int
+	len    int
+	size   int
 }
 
-func New256() hash.Hash { return &digest{size: 256/8, dsbyte: 0x06} }
-func New512() hash.Hash { return &digest{size: 512/8, dsbyte: 0x06} }
+func New256() hash.Hash { return &digest{size: 256 / 8, dsbyte: 0x06} }
+func New512() hash.Hash { return &digest{size: 512 / 8, dsbyte: 0x06} }
 
-func newKeccak256() hash.Hash { return &digest{size: 256/8, dsbyte: 0x01} }
-func newKeccak512() hash.Hash { return &digest{size: 512/8, dsbyte: 0x01} }
+func newKeccak256() hash.Hash { return &digest{size: 256 / 8, dsbyte: 0x01} }
+func newKeccak512() hash.Hash { return &digest{size: 512 / 8, dsbyte: 0x01} }
 
 func (d *digest) Size() int      { return d.size }
 func (d *digest) BlockSize() int { return 200 - d.size*2 }
@@ -40,7 +40,7 @@ func (d *digest) Write(b []byte) (int, error) {
 		n := copy(d.buf[d.len:bs], b)
 		d.len += n
 		b = b[n:]
-		if d.len == bs  {
+		if d.len == bs {
 			d.flush()
 		}
 	}

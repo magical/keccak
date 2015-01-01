@@ -24,13 +24,13 @@ func main() {
 	// Rotation constants
 	x, y := 1, 0
 	for i := 1; i < 25; i++ {
-		rotc[x][y] = (i*(i+1)/2) % 64
+		rotc[x][y] = (i * (i + 1) / 2) % 64
 		x, y = y, (2*x+3*y)%5
 	}
 
 	var ctx = struct {
 		Rotc [5][5]int
-	} {
+	}{
 		rotc,
 	}
 	err := tmpl.Execute(os.Stdout, &ctx)
@@ -41,14 +41,14 @@ func main() {
 
 func count(n int) []int {
 	var out = make([]int, n)
-	for i := 0; i < n; i ++ {
+	for i := 0; i < n; i++ {
 		out[i] = i
 	}
 	return out
 }
 
 func add(a, b, m int) int {
-	return (a+b) % m
+	return (a + b) % m
 }
 
 func sub(a, b int) int {
@@ -56,14 +56,14 @@ func sub(a, b int) int {
 }
 
 func mul(a, b int) int {
-	return a*b
+	return a * b
 }
 
 var funcs = template.FuncMap{
 	"count": count,
-	"add": add,
-	"sub": sub,
-	"mul": mul,
+	"add":   add,
+	"sub":   sub,
+	"mul":   mul,
 }
 
 var tmpl = template.Must(template.New("keccak").Funcs(funcs).Parse(`
