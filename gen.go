@@ -47,16 +47,17 @@ func count(n int) []int {
 	return out
 }
 
-func add(a, b, m int) int {
-	return (a + b) % m
+func add(a, b int) int { return a + b }
+func sub(a, b int) int { return a - b }
+func mul(a, b int) int { return a * b }
+func mod(a, b int) int { return a % b }
+
+func afunc(x, y int) string {
+	return fmt.Sprintf("a[%d][%d]", y%5, x%5)
 }
 
-func sub(a, b int) int {
-	return a - b
-}
-
-func mul(a, b int) int {
-	return a * b
+func bfunc(x, y int) string {
+	return fmt.Sprintf("a%d%d", x%5, y%5)
 }
 
 var funcs = template.FuncMap{
@@ -64,6 +65,9 @@ var funcs = template.FuncMap{
 	"add":   add,
 	"sub":   sub,
 	"mul":   mul,
+	"mod":   mod,
+	"a":     afunc,
+	"b":     bfunc,
 }
 
 var tmpl = template.Must(template.New("keccak").Funcs(funcs).Parse(`
@@ -83,41 +87,41 @@ func roundGo(a *[5][5]uint64) {
 	{{ range $y := count 5 }}
 		{{ range $x := count 5 }}
 			{{ if eq $y 0 }}
-				c{{$x}} = a[{{$y}}][{{$x}}]
+				c{{$x}} = {{a $x $y}}
 			{{ else }}
-				c{{$x}} ^= a[{{$y}}][{{$x}}]
+				c{{$x}} ^= {{a $x $y}}
 			{{ end }}
 		{{ end }}
 	{{ end }}
 	var d uint64
 	{{ range $x := count 5 }}
-		{{ $x0 := add $x 4 5 }}
-		{{ $x1 := add $x 1 5 }}
+		{{ $x0 := mod (add $x 4) 5 }}
+		{{ $x1 := mod (add $x 1) 5 }}
 		d = c{{$x0}} ^ (c{{$x1}}<<1 | c{{$x1}}>>63)
 		{{ range $y := count 5 }}
-			a{{$x}}{{$y}} = a[{{$y}}][{{$x}}] ^ d
+			{{b $x $y}} = {{a $x $y}} ^ d
 		{{ end }}
 	{{ end }}
 
 	// Rho
 	{{ range $y := count 5 }}
 		{{ range $x := count 5 }}
-			{{ $a := printf "a%d%d" $x $y }}
+			{{ $b := b $x $y }}
 			{{ $r := index $.Rotc $x $y }}
-			{{$a}} = {{$a}}<<{{$r}} | {{$a}}>>{{sub 64 $r}}
+			{{$b}} = {{$b}}<<{{$r}} | {{$b}}>>{{sub 64 $r}}
 		{{ end }}
 	{{ end }}
 
 	// Pi / Chi / output
 	{{ range $y := count 5 }}
 		{{ range $x := count 5 }}
-			{{ $x0 := add $x (mul $y 3) 5 }}
+			{{ $x0 := add $x (mul $y 3) }}
 			{{ $y0 := $x }}
-			{{ $x1 := add (add $x 1 5) (mul $y 3) 5 }}
-			{{ $y1 := add $x 1 5 }}
-			{{ $x2 := add (add $x 2 5) (mul $y 3) 5 }}
-			{{ $y2 := add $x 2 5 }}
-			a[{{$y}}][{{$x}}] = a{{$x0}}{{$y0}} ^ (a{{$x2}}{{$y2}} &^ a{{$x1}}{{$y1}})
+			{{ $x1 := add (add $x 1) (mul $y 3) }}
+			{{ $y1 := add $x 1 }}
+			{{ $x2 := add (add $x 2) (mul $y 3) }}
+			{{ $y2 := add $x 2 }}
+			{{a $x $y}} = {{b $x0 $y0}} ^ ({{b $x2 $y2}} &^ {{b $x1 $y1}})
 		{{ end }}
 	{{ end }}
 }
