@@ -10,7 +10,7 @@ var round = roundGo
 
 // digest implements hash.Hash
 type digest struct {
-	a      [5][5]uint64 // a[y][x][z]
+	a      [25]uint64 // a[y][x][z]
 	buf    [200]byte
 	dsbyte byte
 	len    int
@@ -28,7 +28,7 @@ func (d *digest) BlockSize() int { return 200 - d.size*2 }
 
 func (d *digest) Reset() {
 	//fmt.Println("resetting")
-	d.a = [5][5]uint64{}
+	d.a = [25]uint64{}
 	d.buf = [200]byte{}
 	d.len = 0
 }
@@ -51,23 +51,21 @@ func (d *digest) flush() {
 	//fmt.Printf("Flushing with %d bytes\n", d.len)
 	b := d.buf[:d.len]
 loop:
-	for y := range d.a {
-		for x := range d.a[0] {
+	for i := range d.a {
 			if len(b) == 0 {
 				break loop
 			}
-			d.a[y][x] ^= le64dec(b)
+			d.a[i] ^= le64dec(b)
 			b = b[8:]
-		}
 	}
 	keccakf(&d.a)
 	d.len = 0
 }
 
-func keccakf(a *[5][5]uint64) {
+func keccakf(a *[25]uint64) {
 	for i := 0; i < 24; i++ {
 		round(a)
-		a[0][0] ^= roundc[i]
+		a[0] ^= roundc[i]
 	}
 }
 
@@ -83,7 +81,7 @@ func (d0 *digest) Sum(b []byte) []byte {
 	d.flush()
 
 	for i := 0; i < d.size/8; i++ {
-		b = le64enc(b, d.a[i/5][i%5])
+		b = le64enc(b, d.a[i])
 	}
 	return b
 }

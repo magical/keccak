@@ -53,11 +53,11 @@ func mul(a, b int) int { return a * b }
 func mod(a, b int) int { return a % b }
 
 func afunc(x, y int) string {
-	return fmt.Sprintf("a[%d][%d]", y%5, x%5)
+	return fmt.Sprintf("a[%d]", y%5*5 + x%5)
 }
 
 func bfunc(x, y int) string {
-	return fmt.Sprintf("a%d%d", x%5, y%5)
+	return fmt.Sprintf("b%d%d", x%5, y%5)
 }
 
 var funcs = template.FuncMap{
@@ -77,9 +77,9 @@ var tmpl = template.Must(template.New("keccak").Funcs(funcs).Parse(`
 package keccak
 
 // round implements one round of the keccak-f[1600] permutation.
-func roundGo(a *[5][5]uint64) {
+func roundGo(a *[25]uint64) {
 	{{ range $x := count 5 }}
-		var a{{$x}}0, a{{$x}}1, a{{$x}}2, a{{$x}}3, a{{$x}}4 uint64
+		var b{{$x}}0, b{{$x}}1, b{{$x}}2, b{{$x}}3, b{{$x}}4 uint64
 	{{ end }}
 
 	// Theta
