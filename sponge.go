@@ -85,8 +85,3 @@ func le64dec(b []byte) uint64 {
 func le64enc(b []byte, x uint64) []byte {
 	return append(b, byte(x), byte(x>>8), byte(x>>16), byte(x>>24), byte(x>>32), byte(x>>40), byte(x>>48), byte(x>>56))
 }
-
-func (d *digest) writeByte(b byte) {
-	var tmp = [1]byte{b}
-	d.Write(tmp[:])
-}
