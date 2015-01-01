@@ -27,7 +27,7 @@ func TestKeccak256(t *testing.T) {
 	h := newKeccak256()
 	sum := h.Sum(nil)
 	if !reflect.DeepEqual(sum, vector256) {
-		t.Errorf("\"\": want % x, got % x", vector256, sum)
+		t.Errorf("Keccak-256(\"\"): want % x, got % x", vector256, sum)
 	}
 }
 
@@ -35,7 +35,7 @@ func TestKeccak512(t *testing.T) {
 	h := newKeccak512()
 	sum := h.Sum(nil)
 	if !reflect.DeepEqual(sum, vector512) {
-		t.Errorf("\"\": want % x, got % x", vector512, sum)
+		t.Errorf("Keccak-512(\"\"): want % x, got % x", vector512, sum)
 	}
 }
 
