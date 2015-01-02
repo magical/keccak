@@ -42,12 +42,8 @@ func TestKeccak512(t *testing.T) {
 func Benchmark256(b *testing.B) {
 	var tmp [Size]byte
 	h := New256()
-	var msg [BlockSize]byte
-	if len(msg) != h.BlockSize() {
-		b.Fatalf("message length does not match block size: want %d got %d", h.BlockSize(), len(msg))
-	}
 	b.SetBytes(BlockSize)
 	for i := 0; i < b.N; i++ {
-		h.Sum(tmp[:])
+		h.Sum(tmp[:0])
 	}
 }
