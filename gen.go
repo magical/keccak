@@ -87,13 +87,13 @@ func roundGo(a *[25]uint64) {
 	{{ range $x := count 5 }}
 		c{{$x}} = {{a $x 0}} ^ {{a $x 1}} ^ {{a $x 2}} ^ {{a $x 3}} ^ {{a $x 4}}
 	{{ end }}
-	var d uint64
+	var d0, d1, d2, d3, d4 uint64
 	{{ range $x := count 5 }}
 		{{ $x4 := add $x 4 | mod }}
 		{{ $x1 := add $x 1 | mod }}
-		d = c{{$x4}} ^ (c{{$x1}}<<1 | c{{$x1}}>>63)
+		d{{$x}} = c{{$x4}} ^ (c{{$x1}}<<1 | c{{$x1}}>>63)
 		{{ range $y := count 5 }}
-			{{b $x $y}} = {{a $x $y}} ^ d
+			{{b $x $y}} = {{a $x $y}} ^ d{{$x}}
 		{{ end }}
 	{{ end }}
 
