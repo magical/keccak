@@ -91,7 +91,7 @@ func roundGo(a *[25]uint64) {
 
 	b44 = a[24] ^ d
 
-	// Rho / Pi / Chi / output
+	// Rho / Pi
 
 	c0 = b00<<0 | b00>>64
 
@@ -103,6 +103,8 @@ func roundGo(a *[25]uint64) {
 
 	c4 = b44<<14 | b44>>50
 
+	// Chi
+
 	a[0] = c0 ^ (c2 &^ c1)
 
 	a[1] = c1 ^ (c3 &^ c2)
@@ -112,6 +114,8 @@ func roundGo(a *[25]uint64) {
 	a[3] = c3 ^ (c0 &^ c4)
 
 	a[4] = c4 ^ (c1 &^ c0)
+
+	// Rho / Pi
 
 	c0 = b30<<28 | b30>>36
 
@@ -123,6 +127,8 @@ func roundGo(a *[25]uint64) {
 
 	c4 = b24<<61 | b24>>3
 
+	// Chi
+
 	a[5] = c0 ^ (c2 &^ c1)
 
 	a[6] = c1 ^ (c3 &^ c2)
@@ -132,6 +138,8 @@ func roundGo(a *[25]uint64) {
 	a[8] = c3 ^ (c0 &^ c4)
 
 	a[9] = c4 ^ (c1 &^ c0)
+
+	// Rho / Pi
 
 	c0 = b10<<1 | b10>>63
 
@@ -143,6 +151,8 @@ func roundGo(a *[25]uint64) {
 
 	c4 = b04<<18 | b04>>46
 
+	// Chi
+
 	a[10] = c0 ^ (c2 &^ c1)
 
 	a[11] = c1 ^ (c3 &^ c2)
@@ -152,6 +162,8 @@ func roundGo(a *[25]uint64) {
 	a[13] = c3 ^ (c0 &^ c4)
 
 	a[14] = c4 ^ (c1 &^ c0)
+
+	// Rho / Pi
 
 	c0 = b40<<27 | b40>>37
 
@@ -163,6 +175,8 @@ func roundGo(a *[25]uint64) {
 
 	c4 = b34<<56 | b34>>8
 
+	// Chi
+
 	a[15] = c0 ^ (c2 &^ c1)
 
 	a[16] = c1 ^ (c3 &^ c2)
@@ -173,6 +187,8 @@ func roundGo(a *[25]uint64) {
 
 	a[19] = c4 ^ (c1 &^ c0)
 
+	// Rho / Pi
+
 	c0 = b20<<62 | b20>>2
 
 	c1 = b31<<55 | b31>>9
@@ -182,6 +198,8 @@ func roundGo(a *[25]uint64) {
 	c3 = b03<<41 | b03>>23
 
 	c4 = b14<<2 | b14>>62
+
+	// Chi
 
 	a[20] = c0 ^ (c2 &^ c1)
 

@@ -45,7 +45,7 @@ func count(n int) []int {
 func add(a, b int) int { return a + b }
 func sub(a, b int) int { return a - b }
 func mul(a, b int) int { return a * b }
-func mod(a, b int) int { return a % b }
+func mod(a int) int    { return a % 5 }
 
 func afunc(x, y int) string {
 	return fmt.Sprintf("a[%d]", y%5*5+x%5)
@@ -89,16 +89,16 @@ func roundGo(a *[25]uint64) {
 	{{ end }}
 	var d uint64
 	{{ range $x := count 5 }}
-		{{ $x4 := mod (add $x 4) 5 }}
-		{{ $x1 := mod (add $x 1) 5 }}
+		{{ $x4 := add $x 4 | mod }}
+		{{ $x1 := add $x 1 | mod }}
 		d = c{{$x4}} ^ (c{{$x1}}<<1 | c{{$x1}}>>63)
 		{{ range $y := count 5 }}
 			{{b $x $y}} = {{a $x $y}} ^ d
 		{{ end }}
 	{{ end }}
 
-	// Rho / Pi / Chi / output
 	{{ range $y := count 5 }}
+		// Rho / Pi
 		{{ range $x := count 5 }}
 			{{ $x0 := add $x (mul $y 3) }}
 			{{ $y0 := $x }}
@@ -106,9 +106,10 @@ func roundGo(a *[25]uint64) {
 			{{ $r := rotc $x0 $y0 }}
 			c{{$x}} = {{$b}}<<{{$r}} | {{$b}}>>{{sub 64 $r}}
 		{{ end }}
+		// Chi
 		{{ range $x := count 5 }}
-			{{ $x1 := mod (add $x 1) 5 }}
-			{{ $x2 := mod (add $x 2) 5 }}
+			{{ $x1 := add $x 1 | mod }}
+			{{ $x2 := add $x 2 | mod }}
 			{{a $x $y}} = c{{$x}} ^ (c{{$x2}} &^ c{{$x1}})
 		{{ end }}
 	{{ end }}
