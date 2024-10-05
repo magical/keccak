@@ -50,10 +50,9 @@ func (d *digest) Write(b []byte) (int, error) {
 func (d *digest) flush() {
 	//fmt.Printf("Flushing with %d bytes\n", d.len)
 	b := d.buf[:d.len]
-loop:
 	for i := range d.a {
 		if len(b) == 0 {
-			break loop
+			break
 		}
 		d.a[i] ^= le64dec(b)
 		b = b[8:]
