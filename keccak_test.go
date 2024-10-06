@@ -59,7 +59,7 @@ func TestHash(t *testing.T) {
 }
 
 func benchmark(b *testing.B, f func() hash.Hash, size int64) {
-	var tmp [Size]byte
+	var tmp [Size * 2]byte
 	var msg [8192]byte
 	b.SetBytes(size)
 	h := f()
