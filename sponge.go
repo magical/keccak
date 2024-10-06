@@ -91,6 +91,7 @@ func (d *digest) Sum(b []byte) []byte {
 }
 
 func le64dec(b []byte) uint64 {
+	_ = b[7]
 	return uint64(b[0])<<0 | uint64(b[1])<<8 | uint64(b[2])<<16 | uint64(b[3])<<24 | uint64(b[4])<<32 | uint64(b[5])<<40 | uint64(b[6])<<48 | uint64(b[7])<<56
 }
 
