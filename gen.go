@@ -8,6 +8,8 @@ import (
 	"text/template"
 )
 
+// Requires Go 1.6+ for whitespace control in text/template
+
 var roundc [24]uint64
 var rotc [5][5]int
 
@@ -78,38 +80,38 @@ package keccak
 
 // round implements one round of the keccak-f[1600] permutation.
 func roundGo(a *[25]uint64) {
-	{{ range $x := count 5 }}
+	{{ range $x := count 5 -}}
 		var b{{$x}}0, b{{$x}}1, b{{$x}}2, b{{$x}}3, b{{$x}}4 uint64
 	{{ end }}
 
 	// Theta
 	var c0, c1, c2, c3, c4 uint64
-	{{ range $x := count 5 }}
+	{{ range $x := count 5 -}}
 		c{{$x}} = {{a $x 0}} ^ {{a $x 1}} ^ {{a $x 2}} ^ {{a $x 3}} ^ {{a $x 4}}
 	{{ end }}
 	var d0, d1, d2, d3, d4 uint64
-	{{ range $x := count 5 }}
-		{{ $x4 := add $x 4 | mod }}
-		{{ $x1 := add $x 1 | mod }}
+	{{ range $x := count 5 -}}
+		{{ $x4 := add $x 4 | mod -}}
+		{{ $x1 := add $x 1 | mod -}}
 		d{{$x}} = c{{$x4}} ^ (c{{$x1}}<<1 | c{{$x1}}>>63)
-		{{ range $y := count 5 }}
+		{{ range $y := count 5 -}}
 			{{b $x $y}} = {{a $x $y}} ^ d{{$x}}
 		{{ end }}
 	{{ end }}
 
-	{{ range $y := count 5 }}
+	{{ range $y := count 5 -}}
 		// Rho / Pi
-		{{ range $x := count 5 }}
-			{{ $x0 := add $x (mul $y 3) }}
-			{{ $y0 := $x }}
-			{{ $b := b $x0 $y0 }}
-			{{ $r := rotc $x0 $y0 }}
+		{{ range $x := count 5 -}}
+			{{ $x0 := add $x (mul $y 3) -}}
+			{{ $y0 := $x -}}
+			{{ $b := b $x0 $y0 -}}
+			{{ $r := rotc $x0 $y0 -}}
 			c{{$x}} = {{$b}}<<{{$r}} | {{$b}}>>{{sub 64 $r}}
-		{{ end }}
+		{{ end -}}
 		// Chi
-		{{ range $x := count 5 }}
-			{{ $x1 := add $x 1 | mod }}
-			{{ $x2 := add $x 2 | mod }}
+		{{ range $x := count 5 -}}
+			{{ $x1 := add $x 1 | mod -}}
+			{{ $x2 := add $x 2 | mod -}}
 			{{a $x $y}} = c{{$x}} ^ (c{{$x2}} &^ c{{$x1}})
 		{{ end }}
 	{{ end }}
