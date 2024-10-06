@@ -68,8 +68,13 @@ func keccakf(a *[25]uint64) {
 	}
 }
 
-func (d0 *digest) Sum(b []byte) []byte {
-	d := *d0
+func (d *digest) clone() *digest {
+	d0 := *d
+	return &d0
+}
+
+func (d *digest) Sum(b []byte) []byte {
+	d = d.clone()
 	d.buf[d.len] = d.dsbyte
 	bs := d.BlockSize()
 	for i := d.len + 1; i < bs; i++ {
