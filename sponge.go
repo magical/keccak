@@ -6,7 +6,7 @@ const Size = 256 / 8
 
 const BlockSize = 1600/8 - Size*2
 
-var round = roundGo
+func round(a *[25]uint64) { roundGo(a) }
 
 // digest implements hash.Hash
 type digest struct {
