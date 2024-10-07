@@ -40,6 +40,31 @@ var tests = []struct {
 		text: "The quick brown fox jumps over the lazy dog",
 		hash: "69070dda01975c8c120c3aada1b282394e7f032fa9cf32f4cb2259a0897dfc04",
 	},
+
+	{
+		f:    New256,
+		name: "SHA3-256",
+		text: "a",
+		hash: "80084bf2fba02475726feb2cab2d8215eab14bc6bdd8bfb2c8151257032ecd8b",
+	},
+	{
+		f:    New256,
+		name: "SHA3-256",
+		text: "abcdefg",
+		hash: "7d55114476dfc6a2fbeaa10e221a8d0f32fc8f2efb69a6e878f4633366917a62",
+	},
+	{
+		f:    New256,
+		name: "SHA3-256",
+		text: "abcdefgh",
+		hash: "3e2020725a38a48eb3bbf75767f03a22c6b3f41f459c831309b06433ec649779",
+	},
+	{
+		f:    New256,
+		name: "SHA3-256",
+		text: "abcdefghi",
+		hash: "f74eb337992307c22bc59eb43e59583a683f3b93077e7f2472508e8c464d2657",
+	},
 }
 
 func TestHash(t *testing.T) {
@@ -51,6 +76,24 @@ func TestHash(t *testing.T) {
 		}
 		h := tt.f()
 		io.WriteString(h, tt.text)
+		got := h.Sum(nil)
+		if !bytes.Equal(got, want) {
+			t.Errorf("%s(%q) = %x, want %x", tt.name, tt.text, got, want)
+		}
+	}
+}
+
+func TestHashSmallWrites(t *testing.T) {
+	for _, tt := range tests {
+		want, err := hex.DecodeString(tt.hash)
+		if err != nil {
+			t.Errorf("%s(%q): %s", tt.name, tt.text, err)
+			continue
+		}
+		h := tt.f()
+		for i := range []byte(tt.text) {
+			io.WriteString(h, tt.text[i:i+1])
+		}
 		got := h.Sum(nil)
 		if !bytes.Equal(got, want) {
 			t.Errorf("%s(%q) = %x, want %x", tt.name, tt.text, got, want)

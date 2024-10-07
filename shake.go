@@ -26,8 +26,8 @@ func newShake(N, S []byte, sizeBytes int) *Shake {
 		s.digest.Write(N)
 		s.digest.Write(leftEncode(uint64(len(S)) * 8)) // length of S in bits
 		s.digest.Write(S)
-		if s.len > 0 {
-			s.pad(rate)
+		if s.len > 0 || s.ulen > 0 {
+			s.pad8()
 			s.flush()
 		}
 	}
@@ -36,18 +36,14 @@ func newShake(N, S []byte, sizeBytes int) *Shake {
 }
 
 func (s *Shake) pad8() {
-	n := -s.len & 7
-	for i := 0; i < n; i++ {
-		s.buf[s.len+i] = 0
+	if s.ulen > 0 {
+		for i := int(s.ulen); i < len(s.buf); i++ {
+			s.buf[i] = 0
+		}
+		s.a[s.len] ^= le64dec(s.buf[:])
+		s.len += 1
+		s.ulen = 0
 	}
-	s.len += n
-}
-
-func (s *Shake) pad(rate int) {
-	for i := s.len; i < rate && i < len(s.buf); i++ {
-		s.buf[i] = 0
-	}
-	s.len = rate
 }
 
 // Shake is only resettable if Reset is called before the first Write or Read.
@@ -64,7 +60,8 @@ func (s *Shake) Reset() {
 			panic("keccak: Reset called after Read or Write")
 		}
 		s.a = *s.initialState
-		s.buf = [200]byte{}
+		s.buf = [8]byte{}
+		s.ulen = 0
 		s.len = 0
 		s.running = 0
 	}
@@ -79,50 +76,62 @@ func (s *Shake) Read(p []byte) (int, error) {
 	if s.running < 2 && len(p) > 0 {
 		s.running = 2
 
-		s.buf[s.len] = s.dsbyte
-		bs := s.BlockSize()
-		for i := s.len + 1; i < bs; i++ {
-			s.buf[i] = 0
-		}
-		s.buf[bs-1] |= 0x80
-
-		for i := range s.a {
-			if i*8 > bs {
-				break
+		var dsword uint64
+		if s.ulen == 0 {
+			dsword = uint64(s.dsbyte)
+		} else {
+			s.buf[s.ulen] = s.dsbyte
+			for i := int(s.ulen) + 1; i < len(s.buf); i++ {
+				s.buf[i] = 0
 			}
-			s.a[i] ^= le64dec(s.buf[i*8:])
+			dsword = le64dec(s.buf[:])
 		}
+		s.a[s.len] ^= dsword
+
+		bs := s.BlockSize() / 8
+		s.a[bs-1] ^= 0x80 << 56
 
 		s.len = bs
+		s.ulen = 0
+
 	}
 	return s.digest.read(p)
 }
 
 func (d *digest) read(p []byte) (int, error) {
-	bs := d.BlockSize()
+	bs := d.BlockSize() / 8
 	size := len(p)
-	for len(p) > 0 {
-		if d.len == bs {
-			d.squeeze(bs)
-		}
-		n := copy(p, d.buf[:bs])
-		d.len += n
+
+	if d.ulen > 0 {
+		n := copy(p, d.buf[d.ulen:])
 		p = p[n:]
+		d.ulen += int8(n)
+		if int(d.ulen) == len(d.buf) {
+			d.ulen = 0
+			d.len += 1
+		}
 	}
+
+	for len(p) >= 8 {
+		if d.len == bs {
+			d.squeeze()
+		}
+		le64enc(p[:0], d.a[d.len])
+		p = p[8:]
+		d.len += 1
+	}
+
+	if len(p) > 0 {
+		le64enc(d.buf[:0], d.a[d.len])
+		d.ulen = int8(copy(p, d.buf[:]))
+	}
+
 	return size, nil
 }
 
-func (d *digest) squeeze(bs int) {
+func (d *digest) squeeze() {
 	//fmt.Printf("Squeezing\n", d.len)
 	keccakf(&d.a)
-	b := d.buf[:bs]
-	for i := range d.a {
-		if len(b) == 0 {
-			break
-		}
-		le64enc(b[:0], d.a[i]) // append
-		b = b[8:]
-	}
 	d.len = 0
 }
 
